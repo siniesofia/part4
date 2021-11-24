@@ -11,32 +11,6 @@ app.use(cors())
 app.use(express.static('build'))
 
 
-
-// mongoose-määrittelyt alkaa
-// const mongoose = require('mongoose')
-// const url =
-//   // 'mongodb+srv://fullstack:<password>@cluster0-ostce.mongodb.net/note-app?retryWrites=true'
-//   `mongodb+srv://fullstack:kRypCOsshYzDmaCf@cluster0.qjipx.mongodb.net/phonebook-app?retryWrites=true`
-
-// mongoose.connect(url)
-
-// const personSchema = new mongoose.Schema({
-//   name: String,
-//   number: String,
-// })
-
-// personSchema.set('toJSON', {
-//   transform: (document, returnedObject) => {
-//     returnedObject.id = returnedObject._id.toString()
-//     delete returnedObject._id
-//     delete returnedObject.__v
-//   }
-// })
-
-// const Person = mongoose.model('Person', personSchema)
-
-// mongoose määrittelyt loppuu
-
 morgan.token('person', (request, response) => {
     return JSON.stringify(request.body)
   })
@@ -82,13 +56,16 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    // const id = Number(request.params.id)
+    // const person = persons.find(person => person.id === id)
+    // if (person) {
+    //     response.json(person)
+    // } else {
+    //     response.status(404).end()
+    // }
+    Person.findById(request.params.id).then(person => {
+      response.json(person)
+    })
 
   })
 
@@ -107,29 +84,25 @@ const generateId = () => {
     return Math.floor(Math.random() * 100)
 }
 
-app.post('/api/persons/', (request, response) => {
-    const body = request.body
+app.post('/api/persons', (request, response) => {
+  const body = request.body
 
-    if (!body.name) {
-        return response.status(400).json({
-            error: 'name missing'
-        })
-    }
+  if (body.name === undefined) {
+    return response.status(400).json({ error: 'name missing' })
+  }
 
-    if (!body.number) {
-        return response.status(400).json({
-            error: 'number missing'
-        })
-    }
+  if (body.number === undefined) {
+    return response.status(400).json({ error: 'number missing' })
+  }
 
-    const person = {
-        id: generateId(),
-        name: body.name,
-        number: body.number,
-    }
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  })
 
-    persons = persons.concat(person)
-    response.json(person)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
   
 
