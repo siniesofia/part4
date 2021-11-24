@@ -1,19 +1,47 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
 const app = express()
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(cors())
 app.use(express.static('build'))
+
+
+
+// mongoose-määrittelyt alkaa
+// const mongoose = require('mongoose')
+// const url =
+//   // 'mongodb+srv://fullstack:<password>@cluster0-ostce.mongodb.net/note-app?retryWrites=true'
+//   `mongodb+srv://fullstack:kRypCOsshYzDmaCf@cluster0.qjipx.mongodb.net/phonebook-app?retryWrites=true`
+
+// mongoose.connect(url)
+
+// const personSchema = new mongoose.Schema({
+//   name: String,
+//   number: String,
+// })
+
+// personSchema.set('toJSON', {
+//   transform: (document, returnedObject) => {
+//     returnedObject.id = returnedObject._id.toString()
+//     delete returnedObject._id
+//     delete returnedObject.__v
+//   }
+// })
+
+// const Person = mongoose.model('Person', personSchema)
+
+// mongoose määrittelyt loppuu
 
 morgan.token('person', (request, response) => {
     return JSON.stringify(request.body)
   })
   
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :person'))
-
 
 let persons = [
   {
@@ -43,8 +71,14 @@ app.get('/info', (req, res) => {
     res.send(`Phonebook has info for ${length} people <br> ${new Date()}`)
 })
 
-app.get('/api/persons', (req, res) => {
-    res.json(persons)
+// app.get('/api/persons', (req, res) => {
+//     res.json(persons)
+// })
+
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -99,7 +133,7 @@ app.post('/api/persons/', (request, response) => {
 })
   
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
