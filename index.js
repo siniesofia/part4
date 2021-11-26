@@ -10,14 +10,10 @@ app.use(express.json())
 app.use(cors())
 app.use(express.static('build'))
 
-var mongoose = require('mongoose');
-var uniqueValidator = require('mongoose-unique-validator');
+morgan.token('person', (request) => {
+  return JSON.stringify(request.body)
+})
 
-
-morgan.token('person', (request, response) => {
-    return JSON.stringify(request.body)
-  })
-  
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :person'))
 
 const errorHandler = (error, request, response, next) => {
@@ -26,34 +22,34 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    return response.status(404).send(error)
+    return response.status(404).send({ error: error.message })
   }
 
   next(error)
 }
 
 
-let persons = [
-  {
-    id: 1,
-    name: "Amira", 
-    number: "098765",
-  },
-  {
-    id: 2,
-    name: "Elina", 
-    number: "098765",
-  },
-  {
-    id: 3,
-    name: "Ensio", 
-    number: "098765",
-  },
-]
+// let persons = [
+//   {
+//     id: 1,
+//     name: "Amira",
+//     number: "098765",
+//   },
+//   {
+//     id: 2,
+//     name: "Elina",
+//     number: "098765",
+//   },
+//   {
+//     id: 3,
+//     name: "Ensio",
+//     number: "098765",
+//   },
+// ]
 
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello world!</h1>')
+  res.send('<h1>Hello world!</h1>')
 })
 
 // app.get('/info', (req, res) => {
@@ -93,7 +89,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -114,13 +110,13 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-const generateId = () => {
-    // const maxId = persons.length > 0
-    //     ? Math.max(...persons.map(p => p.id))
-    //     : 0
-    // return maxId +1
-    return Math.floor(Math.random() * 100)
-}
+// const generateId = () => {
+//     const maxId = persons.length > 0
+//         ? Math.max(...persons.map(p => p.id))
+//         : 0
+//     return maxId +1
+//     return Math.floor(Math.random() * 100)
+// }
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
@@ -139,12 +135,12 @@ app.post('/api/persons', (request, response, next) => {
   })
 
   person.save()
-  .then(savedPerson => {
-    response.json(savedPerson)
-  }).catch(error => next(error))
+    .then(savedPerson => {
+      response.json(savedPerson)
+    }).catch(error => next(error))
 
 })
-  
+
 app.use(errorHandler)
 
 
