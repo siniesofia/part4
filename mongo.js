@@ -8,7 +8,7 @@ if (process.argv.length<3) {
 
   const url =
   //   `mongodb+srv://fullstack:${password}@cluster0-ostce.mongodb.net/test?retryWrites=true&w=majority`
-    `mongodb+srv://fullstack:${password}@cluster0.qjipx.mongodb.net/phonebook-app?retryWrites=true`
+    `mongodb+srv://fullstack:${password}@cluster0.qjipx.mongodb.net/part4?retryWrites=true`
 
   mongoose.connect(url)
 
